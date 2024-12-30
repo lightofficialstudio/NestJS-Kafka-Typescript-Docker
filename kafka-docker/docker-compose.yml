@@ -1,0 +1,76 @@
+services:
+  zookeeper:
+    image: "bitnami/zookeeper:latest"
+    container_name: zookeeper
+    ports:
+      - 127.0.1.1:2181:2181
+    networks:
+      - local-log_net
+      - local-env_net
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka:
+    image: "bitnami/kafka:latest"
+    container_name: kafka
+    ports:
+      - 9092:9092
+      - 9093:9093
+      - 9094:9094
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,HOSTDOCKER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,HOSTDOCKER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,HOSTDOCKER://host.docker.internal:9093,EXTERNAL://localhost:9094
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
+
+    networks:
+      local-log_net:
+      local-env_net:
+        aliases:
+          - kafka
+    depends_on:
+      - zookeeper
+
+  microservice-producer:
+    networks:
+      - local-env_net
+    build:
+      context: ../microservice-producer
+    container_name: microservice-producer
+    ports:
+      - "3001:3001"
+    environment:
+      PRODUCER_PORT: 3001
+      KAFKA_BROKER: kafka:9092
+      CONSUMER_HOST: microservice-consumer
+      CONSUMER_PORT: 3000
+      PORT: 3001
+    depends_on:
+      - kafka
+    restart: always
+
+  microservice-consumer:
+    networks:
+      - local-env_net
+    build:
+      context: ../microserivce-consumer
+    container_name: microservice-consumer
+    ports:
+      - "3002:3002"
+    environment:
+      CONSUMER_PORT : 3002
+      KAFKA_BROKER: kafka:9092
+    depends_on:
+      - kafka
+    restart: always
+
+networks:
+  local-log_net:
+    driver: bridge
+  local-env_net:
+    driver: bridge
+
+ 
