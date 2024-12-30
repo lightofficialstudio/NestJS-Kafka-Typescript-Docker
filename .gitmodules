@@ -1,4 +1,9 @@
-[submodule "microservice-consumer"]
-	path = microservice-consumer
-	url = git@github.com:lightofficialstudio/NestJS-Kafka-Microservice-Consumer.git
-    	branch = development
+[submodule "NestJS-Kafka-Typescript-Docker"]
+	path = NestJS-Kafka-Typescript-Docker
+	url = https://github.com/lightofficialstudio/NestJS-Kafka-Typescript-Docker.git
+	branch = development
+
+[submodule "NestJS-Kafka-Microservice-Producer"]
+	path = NestJS-Kafka-Microservice-Producer
+	url = git@github.com:lightofficialstudio/NestJS-Kafka-Microservice-Producer.git
+	branch = development
